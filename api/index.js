@@ -9,8 +9,6 @@ const app = express()
 const buildLoaders = () => ({
   productById: new DataLoader(ids => getProducts(ids)),
   storeById: new DataLoader(ids => getStores(ids)),
-  storesByProductId: new DataLoader(ids => getStoresByProductIds(ids)),
-  productsByStoreId: new DataLoader(ids => getProductsByStoreIds(ids)),
 })
 
 app.use(

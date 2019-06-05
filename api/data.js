@@ -18,29 +18,21 @@ const product_x_store = [
 ]
 
 const getProducts = async ids => {
-  return products.filter(product => ids.includes(product.id))
+  return products
+    .filter(product => ids.includes(product.id))
+    .map(product => ({
+      ...product,
+      storeIds: product_x_store.filter(row => row.productId === product.id).map(row => row.storeId),
+    }))
 }
 module.exports.getProducts = getProducts
 
 const getStores = async ids => {
-  return stores.filter(store => ids.includes(store.id))
+  return stores
+    .filter(store => ids.includes(store.id))
+    .map(store => ({
+      ...store,
+      productIds: product_x_store.filter(row => row.storeId === store.id).map(row => row.productId),
+    }))
 }
 module.exports.getStores = getStores
-
-const getStoresByProductIds = async ids => {
-  return ids.map(productId =>
-    product_x_store
-      .filter(row => row.productId === productId)
-      .map(row => stores.find(store => store.id === row.storeId)),
-  )
-}
-module.exports.getStoresByProductIds = getStoresByProductIds
-
-const getProductsByStoreIds = async ids => {
-  return ids.map(storeId =>
-    product_x_store
-      .filter(row => row.storeId === storeId)
-      .map(row => products.find(product => product.id === row.productId)),
-  )
-}
-module.exports.getProductsByStoreIds = getProductsByStoreIds

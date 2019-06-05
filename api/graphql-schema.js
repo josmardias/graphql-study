@@ -34,12 +34,12 @@ const resolvers = {
   },
   Product: {
     stores: (parent, args, context, info) => {
-      return context.loaders.storesByProductId.load(parent.id)
+      return context.loaders.storeById.loadMany(parent.storeIds)
     },
   },
   Store: {
     products: (parent, args, context, info) => {
-      return context.loaders.productsByStoreId.load(parent.id)
+      return context.loaders.productById.loadMany(parent.productIds)
     },
   },
 }

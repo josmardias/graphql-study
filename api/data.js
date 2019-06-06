@@ -1,5 +1,10 @@
 const knex = require('./knex/client')
 
+const sortByIdsOrder = ids => rows => {
+  if (!ids) return rows
+  return ids.map(id => rows.find(row => row.id === id))
+}
+
 const getProducts = ids => {
   const query = knex('product').select(['product.id as id', 'product.name as name'])
 
@@ -9,11 +14,11 @@ const getProducts = ids => {
 
   // stores
   query
-    .innerJoin('productStore', 'product.id', 'productStore.productId')
+    .leftJoin('productStore', 'product.id', 'productStore.productId')
     .groupBy('product.id')
-    .select([knex.raw('ARRAY_AGG("productStore"."storeId") as "storeIds"')])
+    .select([knex.raw('ARRAY_REMOVE(ARRAY_AGG("productStore"."storeId"), NULL) as "storeIds"')])
 
-  return query
+  return query.then(sortByIdsOrder(ids))
 }
 module.exports.getProducts = getProducts
 
@@ -26,10 +31,10 @@ const getStores = ids => {
 
   // products
   query
-    .innerJoin('productStore', 'store.id', 'productStore.storeId')
+    .leftJoin('productStore', 'store.id', 'productStore.storeId')
     .groupBy('store.id')
-    .select([knex.raw('ARRAY_AGG("productStore"."productId") as "productIds"')])
+    .select([knex.raw('ARRAY_REMOVE(ARRAY_AGG("productStore"."productId"), NULL) as "productIds"')])
 
-  return query
+  return query.then(sortByIdsOrder(ids))
 }
 module.exports.getStores = getStores

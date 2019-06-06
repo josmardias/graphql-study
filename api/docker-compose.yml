@@ -1,0 +1,30 @@
+version: '3.7'
+
+services:
+  postgres:
+    image: postgres
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./logs:/logs
+    command:
+      - postgres
+      - -c
+      - logging_collector=on
+      - -c
+      - log_destination=stderr
+      - -c
+      - log_directory=/logs
+      - -c
+      - log_filename=postgres.log
+      - -c
+      - log_file_mode=446
+      - -c
+      - log_statement=all
+
+volumes:
+  postgres:

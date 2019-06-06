@@ -1,9 +1,11 @@
 const knex = require('./knex/client')
 
 const getProducts = ids => {
-  const query = knex('product')
-    .select(['product.id as id', 'product.name as name'])
-    .whereIn('id', ids)
+  const query = knex('product').select(['product.id as id', 'product.name as name'])
+
+  if (ids) {
+    query.whereIn('id', ids)
+  }
 
   // stores
   query
@@ -16,9 +18,11 @@ const getProducts = ids => {
 module.exports.getProducts = getProducts
 
 const getStores = ids => {
-  const query = knex('store')
-    .select(['store.id as id', 'store.name as name'])
-    .whereIn('id', ids)
+  const query = knex('store').select(['store.id as id', 'store.name as name'])
+
+  if (ids) {
+    query.whereIn('id', ids)
+  }
 
   // products
   query

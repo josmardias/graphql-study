@@ -1,38 +1,31 @@
-const products = [
-  { id: '1001', name: 'Swiming Pool' },
-  { id: '1002', name: 'Deodorant' },
-  { id: '1003', name: 'Leather wallet' },
-]
+const knex = require('./knex/client')
 
-const stores = [
-  { id: '1001', name: 'Victor store' },
-  { id: '1002', name: 'Coutinhos' },
-  { id: '1003', name: 'Madam Frufru' },
-]
+const getProducts = ids => {
+  const query = knex('product')
+    .select(['product.id as id', 'product.name as name'])
+    .whereIn('id', ids)
 
-const product_x_store = [
-  { productId: '1001', storeId: '1001' },
-  { productId: '1001', storeId: '1002' },
-  { productId: '1002', storeId: '1002' },
-  { productId: '1002', storeId: '1003' },
-]
+  // stores
+  query
+    .innerJoin('productStore', 'product.id', 'productStore.productId')
+    .groupBy('product.id')
+    .select([knex.raw('ARRAY_AGG("productStore"."storeId") as "storeIds"')])
 
-const getProducts = async ids => {
-  return products
-    .filter(product => ids.includes(product.id))
-    .map(product => ({
-      ...product,
-      storeIds: product_x_store.filter(row => row.productId === product.id).map(row => row.storeId),
-    }))
+  return query
 }
 module.exports.getProducts = getProducts
 
-const getStores = async ids => {
-  return stores
-    .filter(store => ids.includes(store.id))
-    .map(store => ({
-      ...store,
-      productIds: product_x_store.filter(row => row.storeId === store.id).map(row => row.productId),
-    }))
+const getStores = ids => {
+  const query = knex('store')
+    .select(['store.id as id', 'store.name as name'])
+    .whereIn('id', ids)
+
+  // products
+  query
+    .innerJoin('productStore', 'store.id', 'productStore.storeId')
+    .groupBy('store.id')
+    .select([knex.raw('ARRAY_AGG("productStore"."productId") as "productIds"')])
+
+  return query
 }
 module.exports.getStores = getStores

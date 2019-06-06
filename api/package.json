@@ -7,7 +7,8 @@
     "migrate:create": "knex --knexfile knex/config.js migrate:make",
     "migrate:run": "knex --knexfile knex/config.js migrate:latest",
     "seed:create": "knex --knexfile knex/config.js seed:make",
-    "seed:run": "knex --knexfile knex/config.js seed:run"
+    "seed:run": "knex --knexfile knex/config.js seed:run",
+    "test": "jest"
   },
   "dependencies": {
     "dataloader": "^1.4.0",
@@ -15,6 +16,7 @@
     "express-graphql": "^0.8.0",
     "graphql": "^14.3.1",
     "graphql-tools": "^4.0.4",
+    "jest": "^24.8.0",
     "knex": "^0.17.3",
     "pg": "^7.11.0"
   },

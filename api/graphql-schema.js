@@ -51,12 +51,12 @@ const resolvers = {
   },
   Product: {
     stores: (parent, args, context, info) => {
-      return context.loaders.storeById.loadMany(parent.storeIds)
+      return context.loaders.storesByProductId.load(parent.id)
     },
   },
   Store: {
     products: (parent, args, context, info) => {
-      return context.loaders.productById.loadMany(parent.productIds)
+      return context.loaders.productsByStoreId.load(parent.id)
     },
   },
 }

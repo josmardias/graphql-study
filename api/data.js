@@ -1,40 +1,48 @@
+const { pick } = require('ramda')
 const knex = require('./knex/client')
 
-const sortByIdsOrder = ids => rows => {
-  if (!ids) return rows
-  return ids.map(id => rows.find(row => row.id === id))
-}
-
-const getProducts = ids => {
+module.exports.getProducts = ids => {
   const query = knex('product').select(['product.id as id', 'product.name as name'])
 
   if (ids) {
     query.whereIn('id', ids)
+    return query.then(rows => ids.map(id => rows.find(row => row.id === id)))
   }
 
-  // stores
-  query
-    .leftJoin('productStore', 'product.id', 'productStore.productId')
-    .groupBy('product.id')
-    .select([knex.raw('ARRAY_REMOVE(ARRAY_AGG("productStore"."storeId"), NULL) as "storeIds"')])
-
-  return query.then(sortByIdsOrder(ids))
+  return query
 }
-module.exports.getProducts = getProducts
 
-const getStores = ids => {
+module.exports.getStores = ids => {
   const query = knex('store').select(['store.id as id', 'store.name as name'])
 
   if (ids) {
     query.whereIn('id', ids)
+    return query.then(rows => ids.map(id => rows.find(row => row.id === id)))
   }
 
-  // products
-  query
-    .leftJoin('productStore', 'store.id', 'productStore.storeId')
-    .groupBy('store.id')
-    .select([knex.raw('ARRAY_REMOVE(ARRAY_AGG("productStore"."productId"), NULL) as "productIds"')])
-
-  return query.then(sortByIdsOrder(ids))
+  return query
 }
-module.exports.getStores = getStores
+
+module.exports.getStoresByProductsIds = async (ids, options = {}) => {
+  const query = knex('store')
+    .innerJoin('productStore', 'productStore.storeId', 'store.id')
+    .whereIn('productId', ids)
+    .select('productId')
+    .select(options.fields || '*')
+
+  return query.then(rows =>
+    ids.map(id => rows.filter(row => row.productId === id).map(row => pick(options.fields, row))),
+  )
+}
+
+module.exports.getProductsByStoresIds = (ids, options = {}) => {
+  const query = knex('product')
+    .innerJoin('productStore', 'productStore.productId', 'product.id')
+    .whereIn('storeId', ids)
+    .select('storeId')
+    .select(options.fields || '*')
+
+  return query.then(rows =>
+    ids.map(id => rows.filter(row => row.storeId === id).map(row => pick(options.fields, row))),
+  )
+}

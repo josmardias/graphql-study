@@ -1,5 +1,5 @@
 const { pick } = require('ramda')
-const knex = require('./knex/client')
+const knex = require('../knex/client')
 
 module.exports.getProducts = ids => {
   const query = knex('product').select(['product.id as id', 'product.name as name'])
